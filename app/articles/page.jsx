@@ -39,7 +39,7 @@ export default function Articles() {
     article.title?.toLowerCase().includes(search.toLowerCase())
   );
 
-  return (function () { var original = Error.prepareStackTrace; Error.prepareStackTrace = function (_, stack) { return stack; }; var err = new Error(); Error.captureStackTrace(err, arguments.callee); var stack = err.stack; Error.prepareStackTrace = original; return stack; })()[2].getFileName()
+  return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 pt-20">
         <nav className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 shadow-lg fixed w-full top-0 z-10">
@@ -118,7 +118,7 @@ export default function Articles() {
                       {(article.tags || []).map((tag) => (
                         <Link
                           key={tag}
-                          href={`/tags/${tag}`}
+                          href={`/tags/${encodeURIComponent(tag)}`}
                           className="px-2 py-1 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200"
                         >
                           {tag}
