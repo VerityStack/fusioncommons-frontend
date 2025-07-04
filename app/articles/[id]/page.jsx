@@ -1,20 +1,25 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useParams, Link } from "next/navigation";
 import axios from "axios";
 import { sanitizeTitle } from "../../../lib/utils";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 
 export default function ArticleDetail() {
+  const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchArticle = async () => {
+      if (!id) {
+        setError("Article ID not provided.");
+        setLoading(false);
+        return;
+      }
       try {
         const response = await axios.get(`${process.env.API_URL}/api/articles`);
-        const id = window.location.pathname.split("/").pop();
         const foundArticle = response.data.find((a) => a.id === id);
         if (foundArticle) {
           setArticle(foundArticle);
@@ -29,7 +34,7 @@ export default function ArticleDetail() {
       }
     };
     fetchArticle();
-  }, []);
+  }, [id]);
 
   if (loading) {
     return (
