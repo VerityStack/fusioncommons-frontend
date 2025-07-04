@@ -6,7 +6,8 @@ import { sanitizeTitle } from "../../../lib/utils";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 
 export default function ArticleDetail() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id;
   const [article, setArticle] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);

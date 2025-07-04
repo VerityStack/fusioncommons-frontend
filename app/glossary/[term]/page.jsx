@@ -1,24 +1,28 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { useParams, Link } from "next/navigation";
 import axios from "axios";
 import { sanitizeTitle } from "../../../lib/utils";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 
 export default function GlossaryArticles() {
-  const [term, setTerm] = useState("");
+  const params = useParams();
+  const term = params?.term ? decodeURIComponent(params.term) : "";
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTermAndArticles = async () => {
+    const fetchArticles = async () => {
+      if (!term) {
+        setError("Glossary term not provided.");
+        setLoading(false);
+        return;
+      }
       try {
-        const termFromUrl = decodeURIComponent(window.location.pathname.split("/").pop());
-        setTerm(termFromUrl);
         const response = await axios.get(`${process.env.API_URL}/api/articles`);
         const filtered = response.data.filter((article) =>
-          (article.glossary || []).some((item) => item.term === termFromUrl)
+          (article.glossary || []).some((item) => item.term === term)
         );
         setArticles(filtered);
         setError("");
@@ -28,8 +32,9 @@ export default function GlossaryArticles() {
         setLoading(false);
       }
     };
-    fetchTermAndArticles();
-  }, []);
+    console.log("Term:", term); // Debug log
+    fetchArticles();
+  }, [term]);
 
   if (loading) {
     return (
