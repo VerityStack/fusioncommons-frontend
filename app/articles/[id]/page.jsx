@@ -1,44 +1,48 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useParams, Link } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 import { sanitizeTitle } from "../../../lib/utils";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 
 export default function ArticleDetail() {
-  const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await axios.get(`https://veritystack.onrender.com/api/articles`);
+        const response = await axios.get(`${process.env.API_URL}/api/articles`);
+        const id = window.location.pathname.split("/").pop();
         const foundArticle = response.data.find((a) => a.id === id);
         if (foundArticle) {
           setArticle(foundArticle);
+          setError("");
         } else {
           setError("Article not found.");
         }
       } catch (err) {
         setError("Failed to load article: " + err.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchArticle();
-  }, [id]);
+  }, []);
 
-  if (error) {
+  if (loading) {
     return (
       <div className="container mx-auto p-6 max-w-6xl pt-20">
-        <p className="text-red-500">{error}</p>
+        <p className="text-gray-600">Loading...</p>
       </div>
     );
   }
 
-  if (!article) {
+  if (error || !article) {
     return (
       <div className="container mx-auto p-6 max-w-6xl pt-20">
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-red-500">{error || "Article not found."}</p>
       </div>
     );
   }
@@ -84,7 +88,7 @@ export default function ArticleDetail() {
               {(article.tags || []).map((tag) => (
                 <Link
                   key={tag}
-                  href={`/tags/${tag}`}
+                  href={`/tags/${encodeURIComponent(tag)}`}
                   className="px-2 py-1 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200"
                 >
                   {tag}
@@ -98,12 +102,12 @@ export default function ArticleDetail() {
               article.glossary.map((item) => (
                 <div key={item.term} className="ml-4">
                   <Link
-                    href={`/glossary/${item.term}`}
+                    href={`/glossary/${encodeURIComponent(item.term)}`}
                     className="text-blue-500 hover:underline font-medium"
                   >
                     {item.term}
                   </Link>
-                  : {item.definition}
+                  : {item.definition || "Definition not available"}
                 </div>
               ))
             ) : (
@@ -112,15 +116,17 @@ export default function ArticleDetail() {
           </div>
           <div className="flex gap-4">
             <h3 className="text-lg font-medium text-gray-700">Citation:</h3>
-            <p className="text-gray-600">{article.citation}</p>
-            <a
-              href={article.url}
-              className="text-blue-500 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Source Article
-            </a>
+            <p className="text-gray-600">{article.citation || "No citation available."}</p>
+            {article.url && (
+              <a
+                href={article.url}
+                className="text-blue-500 hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Source Article
+              </a>
+            )}
             {article.pdf_url && (
               <span className="ml-2">
                 |{" "}

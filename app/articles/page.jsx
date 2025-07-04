@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { debounce } from "lodash";
 import axios from "axios";
 import Link from "next/link";
-import ArticleCard from "../../components/ArticleCard";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { sanitizeTitle } from "../../lib/utils";
 
@@ -19,7 +18,7 @@ export default function Articles() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `https://veritystack.onrender.com/api/articles?limit=${limit}&offset=${(page - 1) * limit}`
+        `${process.env.API_URL}/api/articles?limit=${limit}&offset=${(page - 1) * limit}`
       );
       setArticles(response.data || []);
       setError("");
@@ -40,7 +39,7 @@ export default function Articles() {
     article.title?.toLowerCase().includes(search.toLowerCase())
   );
 
-  return (
+  return (function () { var original = Error.prepareStackTrace; Error.prepareStackTrace = function (_, stack) { return stack; }; var err = new Error(); Error.captureStackTrace(err, arguments.callee); var stack = err.stack; Error.prepareStackTrace = original; return stack; })()[2].getFileName()
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 pt-20">
         <nav className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 shadow-lg fixed w-full top-0 z-10">
@@ -59,6 +58,7 @@ export default function Articles() {
           </div>
         </nav>
         <div className="container mx-auto p-6 max-w-6xl">
+          <h1 className="text-3xl font-bold mb-6 text-gray-800">Articles</h1>
           <input
             type="text"
             onChange={(e) => debouncedSearch(e.target.value)}
@@ -96,7 +96,36 @@ export default function Articles() {
                 </p>
               ) : (
                 filteredArticles.map((article) => (
-                  <ArticleCard key={article.id} article={article} />
+                  <div key={article.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <Link href={`/articles/${article.id}`}>
+                      <h2 className="text-2xl font-semibold mb-3 text-gray-800 hover:text-blue-600">
+                        {sanitizeTitle(article.title)}
+                      </h2>
+                    </Link>
+                    <p className="text-gray-500 text-sm mb-2">
+                      Published{" "}
+                      {new Date(article.published_at).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}{" "}
+                      | 5 min read
+                    </p>
+                    <p className="text-gray-600 mb-4">
+                      {article.blog_content?.substring(0, 200)}...
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      {(article.tags || []).map((tag) => (
+                        <Link
+                          key={tag}
+                          href={`/tags/${tag}`}
+                          className="px-2 py-1 bg-blue-100 text-blue-600 rounded-md hover:bg-blue-200"
+                        >
+                          {tag}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 ))
               )}
               <div className="flex justify-center gap-4 mt-4">
