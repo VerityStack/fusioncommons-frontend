@@ -36,7 +36,7 @@ export default function Articles() {
   const debouncedSearch = debounce((value) => setSearch(value), 300);
 
   const filteredArticles = articles.filter((article) =>
-    article.title?.toLowerCase().includes(search.toLowerCase())
+    article.title?.toLowerCase().replace(/[^\w\s]/g, "").includes(search.toLowerCase().replace(/[^\w\s]/g, ""))
   );
 
   return (
