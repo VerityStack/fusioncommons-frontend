@@ -6,8 +6,7 @@ import { sanitizeTitle } from "../../../lib/utils";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 
 export default function GlossaryArticles() {
-  const params = useParams();
-  const term = params?.term ? decodeURIComponent(params.term) : "";
+  const { term } = useParams() || {};
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -20,13 +19,16 @@ export default function GlossaryArticles() {
         return;
       }
       try {
+        const decodedTerm = decodeURIComponent(term);
         const response = await axios.get(`${process.env.API_URL}/api/articles`);
+        console.log("Glossary articles response:", response.data); // Debug log
         const filtered = response.data.filter((article) =>
-          (article.glossary || []).some((item) => item.term === term)
+          (article.glossary || []).some((item) => item.term === decodedTerm)
         );
         setArticles(filtered);
         setError("");
       } catch (err) {
+        console.error("Fetch error:", err); // Debug log
         setError("Failed to load articles: " + err.message);
       } finally {
         setLoading(false);
@@ -71,7 +73,7 @@ export default function GlossaryArticles() {
           </div>
         </nav>
         <div className="container mx-auto p-6 max-w-6xl">
-          <h1 className="text-3xl font-bold mb-6">Articles with glossary term "{term}"</h1>
+          <h1 className="text-3xl font-bold mb-6">Articles with glossary term "{decodeURIComponent(term)}"</h1>
           {articles.length === 0 ? (
             <p className="text-gray-600">No articles found for this term.</p>
           ) : (
@@ -80,7 +82,7 @@ export default function GlossaryArticles() {
                 <div key={article.id} className="bg-white p-6 rounded-lg shadow-md">
                   <Link href={`/articles/${article.id}`}>
                     <h2 className="text-2xl font-semibold mb-3 hover:text-blue-600">
-                      {sanitizeTitle(article.title)}
+                      {sanitizeTitle(article.title || "Untitled")}
                     </h2>
                   </Link>
                   <p className="text-gray-600">

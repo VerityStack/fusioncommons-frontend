@@ -20,9 +20,11 @@ export default function Articles() {
       const response = await axios.get(
         `${process.env.API_URL}/api/articles?limit=${limit}&offset=${(page - 1) * limit}`
       );
+      console.log("Articles fetched:", response.data); // Debug log
       setArticles(response.data || []);
       setError("");
     } catch (err) {
+      console.error("Fetch error:", err); // Debug log
       setError("Failed to load articles: " + err.message);
     } finally {
       setLoading(false);
@@ -33,10 +35,16 @@ export default function Articles() {
     fetchArticles();
   }, [page]);
 
-  const debouncedSearch = debounce((value) => setSearch(value), 300);
+  const debouncedSearch = debounce((value) => {
+    console.log("Search term:", value); // Debug log
+    setSearch(value);
+  }, 300);
 
   const filteredArticles = articles.filter((article) =>
-    article.title?.toLowerCase().includes(search.toLowerCase())
+    article.title
+      ?.toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .includes(search.toLowerCase().replace(/[^\w\s]/g, ""))
   );
 
   return (
@@ -99,16 +107,18 @@ export default function Articles() {
                   <div key={article.id} className="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
                     <Link href={`/articles/${article.id}`}>
                       <h2 className="text-2xl font-semibold mb-3 text-gray-800 hover:text-blue-600">
-                        {sanitizeTitle(article.title)}
+                        {sanitizeTitle(article.title || "Untitled")}
                       </h2>
                     </Link>
                     <p className="text-gray-500 text-sm mb-2">
                       Published{" "}
-                      {new Date(article.published_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}{" "}
+                      {article.published_at
+                        ? new Date(article.published_at).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        : "Date unavailable"}{" "}
                       | 5 min read
                     </p>
                     <p className="text-gray-600 mb-4">

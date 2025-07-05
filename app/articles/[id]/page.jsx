@@ -19,15 +19,19 @@ export default function ArticleDetail() {
         return;
       }
       try {
+        console.log("Fetching article with ID:", id); // Debug log
         const response = await axios.get(`${process.env.API_URL}/api/articles`);
+        console.log("API response:", response.data); // Debug log
         const foundArticle = response.data.find((a) => a.id === id);
         if (foundArticle) {
+          console.log("Found article:", foundArticle); // Debug log
           setArticle(foundArticle);
           setError("");
         } else {
           setError("Article not found.");
         }
       } catch (err) {
+        console.error("Fetch error:", err); // Debug log
         setError("Failed to load article: " + err.message);
       } finally {
         setLoading(false);
@@ -71,14 +75,16 @@ export default function ArticleDetail() {
           </div>
         </nav>
         <div className="container mx-auto p-6 max-w-6xl">
-          <h1 className="text-3xl font-bold mb-4">{sanitizeTitle(article.title)}</h1>
+          <h1 className="text-3xl font-bold mb-4">{sanitizeTitle(article.title || "Untitled")}</h1>
           <p className="text-gray-500 text-sm mb-4">
             Published{" "}
-            {new Date(article.published_at).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}{" "}
+            {article.published_at
+              ? new Date(article.published_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : "Date unavailable"}{" "}
             | 5 min read
           </p>
           <div
