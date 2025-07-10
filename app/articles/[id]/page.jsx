@@ -1,57 +1,30 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useParams, Link } from "next/navigation";
-import axios from "axios";
+import Link from "next/link";
 import { sanitizeTitle } from "../../../lib/utils";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 
-export default function ArticleDetail() {
-  const { id } = useParams() || {};
-  const [article, setArticle] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+export default async function ArticleDetail({ params }) {
+  const { id } = params;
 
-  useEffect(() => {
-    const fetchArticle = async () => {
-      if (!id) {
-        setError("Article ID not provided.");
-        setLoading(false);
-        return;
-      }
-      try {
-        console.log("Fetching article with ID:", id); // Debug log
-        const response = await axios.get(`${process.env.API_URL}/api/articles`);
-        console.log("API response:", response.data); // Debug log
-        const foundArticle = response.data.find((a) => a.id === id);
-        if (foundArticle) {
-          console.log("Found article:", foundArticle); // Debug log
-          setArticle(foundArticle);
-          setError("");
-        } else {
-          setError("Article not found.");
-        }
-      } catch (err) {
-        console.error("Fetch error:", err); // Debug log
-        setError("Failed to load article: " + err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArticle();
-  }, [id]);
+  let article = null;
+  let error = "";
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6 max-w-6xl pt-20">
-        <p className="text-gray-600">Loading...</p>
-      </div>
-    );
+  try {
+    const res = await fetch(`${process.env.API_URL}/api/articles`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) throw new Error("Failed to fetch articles");
+    const data = await res.json();
+    article = data.find((a) => a.id === id);
+    if (!article) error = "Article not found.";
+  } catch (err) {
+    console.error("Fetch error:", err);
+    error = "Failed to load article.";
   }
 
   if (error || !article) {
     return (
       <div className="container mx-auto p-6 max-w-6xl pt-20">
-        <p className="text-red-500">{error || "Article not found."}</p>
+        <p className="text-red-500">{error}</p>
       </div>
     );
   }
@@ -75,7 +48,9 @@ export default function ArticleDetail() {
           </div>
         </nav>
         <div className="container mx-auto p-6 max-w-6xl">
-          <h1 className="text-3xl font-bold mb-4">{sanitizeTitle(article.title || "Untitled")}</h1>
+          <h1 className="text-3xl font-bold mb-4">
+            {sanitizeTitle(article.title || "Untitled")}
+          </h1>
           <p className="text-gray-500 text-sm mb-4">
             Published{" "}
             {article.published_at
@@ -125,7 +100,7 @@ export default function ArticleDetail() {
               <p className="ml-4 text-gray-600">No glossary terms available.</p>
             )}
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             <h3 className="text-lg font-medium text-gray-700">Citation:</h3>
             <p className="text-gray-600">{article.citation || "No citation available."}</p>
             {article.url && (
@@ -155,7 +130,9 @@ export default function ArticleDetail() {
         </div>
         <footer className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
           <div className="container mx-auto text-center">
-            <p className="text-lg">© 2025 FusionCommons.ai. All rights reserved.</p>
+            <p className="text-lg">
+              © 2025 FusionCommons.ai. All rights reserved.
+            </p>
           </div>
         </footer>
       </div>
