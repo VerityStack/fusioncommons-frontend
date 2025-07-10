@@ -1,49 +1,26 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useParams, Link } from "next/navigation";
-import axios from "axios";
+import Link from "next/link";
 import { sanitizeTitle } from "../../../lib/utils";
 import ErrorBoundary from "../../../components/ErrorBoundary";
 
-export default function TagArticles() {
-  const { tag } = useParams() || {};
-  const [articles, setArticles] = useState([]);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+export default async function TagArticles({ params }) {
+  const { tag } = params;
+  let articles = [];
+  let error = "";
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      if (!tag) {
-        setError("Tag not provided.");
-        setLoading(false);
-        return;
-      }
-      try {
-        const decodedTag = decodeURIComponent(tag);
-        const response = await axios.get(`${process.env.API_URL}/api/articles`);
-        console.log("Tag articles response:", response.data); // Debug log
-        const filtered = response.data.filter((article) =>
-          (article.tags || []).includes(decodedTag)
-        );
-        setArticles(filtered);
-        setError("");
-      } catch (err) {
-        console.error("Fetch error:", err); // Debug log
-        setError("Failed to load articles: " + err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    console.log("Tag:", tag); // Debug log
-    fetchArticles();
-  }, [tag]);
-
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6 max-w-6xl pt-20">
-        <p className="text-gray-600">Loading...</p>
-      </div>
+  try {
+    const res = await fetch(`${process.env.API_URL}/api/articles`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) throw new Error("Failed to fetch articles");
+    const data = await res.json();
+    const decodedTag = decodeURIComponent(tag);
+    articles = data.filter((article) =>
+      (article.tags || []).includes(decodedTag)
     );
+    if (articles.length === 0) error = "No articles found for this tag.";
+  } catch (err) {
+    console.error("Fetch error:", err);
+    error = "Failed to load articles.";
   }
 
   if (error) {
@@ -74,24 +51,20 @@ export default function TagArticles() {
         </nav>
         <div className="container mx-auto p-6 max-w-6xl">
           <h1 className="text-3xl font-bold mb-6">Articles tagged with "{decodeURIComponent(tag)}"</h1>
-          {articles.length === 0 ? (
-            <p className="text-gray-600">No articles found for this tag.</p>
-          ) : (
-            <div className="space-y-8">
-              {articles.map((article) => (
-                <div key={article.id} className="bg-white p-6 rounded-lg shadow-md">
-                  <Link href={`/articles/${article.id}`}>
-                    <h2 className="text-2xl font-semibold mb-3 hover:text-blue-600">
-                      {sanitizeTitle(article.title || "Untitled")}
-                    </h2>
-                  </Link>
-                  <p className="text-gray-600">
-                    {article.blog_content?.substring(0, 200)}...
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="space-y-8">
+            {articles.map((article) => (
+              <div key={article.id} className="bg-white p-6 rounded-lg shadow-md">
+                <Link href={`/articles/${article.id}`}>
+                  <h2 className="text-2xl font-semibold mb-3 hover:text-blue-600">
+                    {sanitizeTitle(article.title || "Untitled")}
+                  </h2>
+                </Link>
+                <p className="text-gray-600">
+                  {article.blog_content?.substring(0, 200)}...
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
         <footer className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
           <div className="container mx-auto text-center">
