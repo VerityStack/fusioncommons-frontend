@@ -96,19 +96,7 @@ export default function ArticleContent({ article, error }) {
                 Source Article
               </a>
             )}
-            {article.pdf_url && (
-              <span className="ml-2">
-                |{" "}
-                <a
-                  href={`/public/articles/${article.pdf_url.split("/").pop()}`}
-                  className="text-blue-500 hover:underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  PDF
-                </a>
-              </span>
-            )}
+
           </div>
         </div>
         <footer className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
