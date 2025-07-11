@@ -1,5 +1,6 @@
 // app/tags/[tag]/page.jsx
-import TagContent from './TagContent';  // Import the client component
+import TagContent from './TagContent'; // Ensure correct casing
+import { sanitizeTitle } from '../../../lib/utils';
 
 export default async function TagPage({ params }) {
   const { tag } = params;
@@ -22,9 +23,5 @@ export default async function TagPage({ params }) {
     error = 'Failed to load articles.';
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;  // Simple error for now; can enhance later
-  }
-
-  return <TagContent tag={decodeURIComponent(tag)} articles={articles} />;
+  return <TagContent tag={decodeURIComponent(tag)} articles={articles} error={error} />;
 }

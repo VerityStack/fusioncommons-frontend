@@ -1,10 +1,10 @@
-// app/tags/[tag]/TagContent.jsx
+// app/glossary/[term]/GlossaryContent.jsx
 'use client';
 import Link from 'next/link';
 import { sanitizeTitle } from '../../../lib/utils';
 import ErrorBoundary from '../../../components/ErrorBoundary';
 
-export default function TagContent({ tag, articles, error }) {
+export default function GlossaryContent({ term, articles, error }) {
   if (error) {
     return (
       <div className="container mx-auto p-6 max-w-6xl pt-20">
@@ -32,7 +32,7 @@ export default function TagContent({ tag, articles, error }) {
           </div>
         </nav>
         <div className="container mx-auto p-6 max-w-6xl">
-          <h1 className="text-3xl font-bold mb-6">Articles tagged with "{tag}"</h1>
+          <h1 className="text-3xl font-bold mb-6">Articles with glossary term "{term}"</h1>
           <div className="space-y-8">
             {articles.map((article) => (
               <div key={article.id} className="bg-white p-6 rounded-lg shadow-md">
