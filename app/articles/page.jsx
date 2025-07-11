@@ -1,4 +1,4 @@
-"use client";
+
 import { useState, useEffect } from "react";
 import { debounce } from "lodash";
 import axios from "axios";

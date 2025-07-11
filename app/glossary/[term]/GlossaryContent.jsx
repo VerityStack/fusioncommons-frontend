@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { sanitizeTitle } from '../../../lib/utils';
 import ErrorBoundary from '../../../components/ErrorBoundary';
 
-export default function GlossaryContent({ term, articles, error }) {
+export default function GlossaryContent({ term = "", articles = [], error = "" }) {
   if (error) {
     return (
       <div className="container mx-auto p-6 max-w-6xl pt-20">
@@ -12,6 +12,8 @@ export default function GlossaryContent({ term, articles, error }) {
       </div>
     );
   }
+  // ...
+}
 
   return (
     <ErrorBoundary>
