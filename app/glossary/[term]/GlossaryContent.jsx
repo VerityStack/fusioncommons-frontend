@@ -12,8 +12,6 @@ export default function GlossaryContent({ term = "", articles = [], error = "" }
       </div>
     );
   }
-  // ...
-}
 
   return (
     <ErrorBoundary>

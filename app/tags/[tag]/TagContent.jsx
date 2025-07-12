@@ -1,20 +1,17 @@
-// app/tags/[tag]/TagContent.jsx
-'use client';
-import Link from 'next/link';
-import { sanitizeTitle } from '../../../lib/utils';
-import ErrorBoundary from '../../../components/ErrorBoundary';
+"use client";
+import Link from "next/link";
+import { sanitizeTitle } from "../../../lib/utils";
+import ErrorBoundary from "../../../components/ErrorBoundary";
 
 export default function TagContent({ tag = "", articles = [], error = "" }) {
-    if (error) {
-      return (
-        <div className="container mx-auto p-6 max-w-6xl pt-20">
-          <p className="text-red-500">{error}</p>
-        </div>
-      );
-    }
-    // ...
+  if (error) {
+    return (
+      <div className="container mx-auto p-6 max-w-6xl pt-20">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
   }
-
+  
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-50 pt-20">
