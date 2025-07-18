@@ -1,7 +1,8 @@
 import ArticleContent from "./ArticleContent";
 
 export default async function ArticleDetail({ params }) {
-  const { id } = params;
+  const resolvedParams = await params;  // Await here
+  const { id } = resolvedParams;
 
   let article = null;
   let error = "";

@@ -3,6 +3,7 @@ import GlossaryContent from './GlossaryContent';
 import { sanitizeTitle } from '../../../lib/utils';
 
 export default async function GlossaryPage({ params }) {
+  const resolvedParams = await params;  // Await here
   const { term } = params || {};
   if (!term) {
     return <p className="text-red-500 p-4">Glossary term not provided.</p>;
