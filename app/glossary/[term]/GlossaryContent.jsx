@@ -1,8 +1,7 @@
-// app/glossary/[term]/GlossaryContent.jsx
-'use client';
-import Link from 'next/link';
-import { sanitizeTitle } from '../../../lib/utils';
-import ErrorBoundary from '../../../components/ErrorBoundary';
+"use client";
+import Link from "next/link";
+import { sanitizeTitle } from "../../../lib/utils";
+import ErrorBoundary from "../../../components/ErrorBoundary";
 
 export default function GlossaryContent({ term = "", articles = [], error = "" }) {
   if (error) {
@@ -56,4 +55,4 @@ export default function GlossaryContent({ term = "", articles = [], error = "" }
       </div>
     </ErrorBoundary>
   );
-}
+} 
