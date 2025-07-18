@@ -3,8 +3,8 @@ import TagContent from './TagContent'; // Ensure correct casing
 import { sanitizeTitle } from '../../../lib/utils';
 
 export default async function TagPage({ params }) {
-  const resolvedParams = await params;  // Await here
-  const { tag } = params || {};
+  const resolvedParams = await params;
+  const { tag } = resolvedParams || {};  // Fix: Use resolvedParams
   if (!tag) {
     return <p className="text-red-500 p-4">Tag not provided.</p>;
   }
